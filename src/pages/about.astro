@@ -1,0 +1,67 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts.ts';
+import SEO from '../components/SEO.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { MobileHeader } from '../components/MobileHeader.tsx';
+
+import { Image } from 'astro:assets';
+import myImage from '/public/bg_yozora_night_sky_building.jpg';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<SEO title={SITE_TITLE} description={SITE_DESCRIPTION}/>
+	</head>
+	<body class="min-h-screen w-full flex-col leading-relax">
+			<div id="conditionalDiv" class="hidden md:block">
+				<Header title={SITE_TITLE} description={SITE_DESCRIPTION} />
+			</div>
+			<div id="reactDiv" class="block md:hidden">
+				<MobileHeader client:visible/>
+			</div>
+			<main class="h-screen flex-grow pb-16">
+
+				<container>
+					<div class="flex justify-center pt-32 px-4">
+						<Image src={myImage} alt="image" class="flex justify-center "/>
+					</div>
+
+					<article class="px-16">
+						<p class="leading-none mt-8 font-bold text-2xl sm:text-3xl md:text-4xl flex justify-center text-shadow-[0_4px_8px_var(--tw-shadow-color)] shadow-backgrounddark sm:px-2 sm:py-2">Hello, about yourself.</p>
+						<div class="flex justify-center">
+							About yourself.
+						</div>
+					</article>
+				</container>
+			
+			</main>
+		<Footer />
+	</body>
+
+</html>
+
+<script>
+	function handleResize() {
+		// Get the window width
+		const windowWidth = window.innerWidth;
+	
+		// Get the element you want to conditionally show/hide
+		const conditionalDiv = document.getElementById('conditionalDiv');
+		console.log("console.conditionalDiv", conditionalDiv);
+	
+		// Check if the window width is greater than or equal to the md size (adjust the value as needed)
+		if (windowWidth >= 768) { // Assuming 768 is your md size
+			conditionalDiv!.classList.remove('hidden');
+			conditionalDiv!.classList.add('animate-none'); // Add this line to disable animation
+		} else {
+			conditionalDiv!.classList.add('hidden');
+			conditionalDiv!.classList.remove('animate-none');
+		}
+	}
+	// Register the event listener for window resize
+	window.addEventListener('resize', handleResize);
+	// Initial call to handleResize to set the initial state based on window size
+	handleResize();
+</script>

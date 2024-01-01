@@ -1,0 +1,96 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts.ts';
+import SEO from '../../components/SEO.astro';
+import Header from '../../components/Header.astro';
+import Card from '../../components/Card.astro';
+import BlogPagination from '../../components/BlogPagination.astro';
+import Footer from '../../components/Footer.astro';
+import { MobileHeader } from '../../components/MobileHeader.tsx';
+
+import { getBlogs } from '../../lib/microcms';
+
+export function  isDefined <T>(value: T | undefined | null): value is T {
+    return value !== undefined && value !== null;
+}
+
+export const prerender = true;
+
+// Get the full path to the detailed article page
+export async function getStaticPaths() {
+
+const PER_PAGE = 10;
+
+const response = await getBlogs();
+
+    return response.contents.map((content: any, index: number) => ({
+        params: {
+            posts: (index + 1).toString(),
+            id: content.id,
+            pageNumber: (index + 1),
+        },
+        props:  {
+            offset: index * PER_PAGE,
+        }
+    }));
+}
+
+const { offset } = Astro.props;
+
+const page = await getBlogs({ limit: 10, offset: offset });
+
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+    <SEO title={SITE_TITLE} description={SITE_DESCRIPTION}/>
+    </head>
+    <body class="flex flex-col min-h-screen">
+        <div id="conditionalDiv" class="hidden md:block">
+            <Header title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        </div>
+        <div id="reactDiv" class="block md:hidden">
+            <MobileHeader client:visible/>
+        </div>
+    
+        <main class="flex-grow">
+                <div class="mx-4 sm:mx-8 md:mx-16 lg:mx-32 mt-24 md:mt-16">
+                {
+                    page.contents.map((content: any) => (
+                        <Card href={`/blog/${content.id}`}
+                            // image={content.image.url}
+                            title={content.title}
+                            body={content.content}
+                        />
+                    ))
+                } 
+            </div>			
+        </main>
+        <BlogPagination props={page} class="absolute inset-x-0 bottom-0"/>
+        <Footer />
+    </body>
+</html>
+
+<script>
+    function handleResize() {
+        // Get the window width
+        const windowWidth = window.innerWidth;
+    
+        // Get the element you want to conditionally show/hide
+        const conditionalDiv = document.getElementById('conditionalDiv');
+        console.log("console.conditionalDiv", conditionalDiv);
+    
+        // Check if the window width is greater than or equal to the md size (adjust the value as needed)
+        if (windowWidth >= 768) { // Assuming 768 is your md size
+            conditionalDiv!.classList.remove('hidden');
+            conditionalDiv!.classList.add('animate-none'); // Add this line to disable animation
+        } else {
+            conditionalDiv!.classList.add('hidden');
+            conditionalDiv!.classList.remove('animate-none');
+        }
+    }
+    // Register the event listener for window resize
+    window.addEventListener('resize', handleResize);
+    // Initial call to handleResize to set the initial state based on window size
+    handleResize();
+</script>

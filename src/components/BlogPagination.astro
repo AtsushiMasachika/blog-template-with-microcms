@@ -1,0 +1,29 @@
+---
+export function isDefined <T>(value: T | undefined | null): value is T {
+  return value !== undefined && value !== null;
+}
+
+const PER_PAGE = 10; 
+
+const { props } = Astro.props;
+
+const range = (start: number, end: number) => [...Array(end - start)].map((_, i) => start + i);
+const pageIndex = range(0, Math.ceil(props.totalCount / PER_PAGE)).map((index) =>  index);
+---
+
+<main class="my-4 flex justify-center">
+    <div>
+        <ui>
+            {
+                pageIndex.map((index) => ( 
+                    ( (index * PER_PAGE) === (props.offset)  
+                    ? <a href={`/blog/${index + 1}`} class="mx-1 text-white bg-accent hover:bg-accentdark focus:ring-4 focus:ring-white font-medium rounded-lg text-sm px-5 py-2.5 mr-0.5 mb-0 focus:outline-none ">{(index + 1)}</a>
+                    : <a href={`/blog/${index + 1}`} class="mx-1 text-white bg-complement hover:bg-accentdark focus:ring-4 focus:ring-white font-medium rounded-lg text-sm px-5 py-2.5 mr-0.5 mb-0 focus:outline-none">{(index + 1)}</a>)
+                ))
+            }
+        </ui>
+    </div>
+</main>
+
+
+
